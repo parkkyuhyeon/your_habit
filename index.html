@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>머리 만지지마!</title>
+
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="static/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+  <link href="static/css/landing-page.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark bg-dark static-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">당신의 습관을 고쳐드립니다.</a>
+    </div>
+  </nav>
+
+<div class="container">
+  <h1 style="text-align: center;" id = "state"></h1>
+  <div style="visibility: hidden; position: absolute;" id="webcam-container"></div>
+  <div id="label-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <script type="text/javascript">
+      const URL = "https://teachablemachine.withgoogle.com/models/vuKMk-hJr/";
+  
+      let model, webcam, labelContainer, maxPredictions;
+  
+      async function init() {
+          const modelURL = URL + "model.json";
+          const metadataURL = URL + "metadata.json";
+  
+          model = await tmImage.load(modelURL, metadataURL);
+          maxPredictions = model.getTotalClasses();
+  
+          const flip = true;
+          webcam = new tmImage.Webcam(200, 200, flip);
+          await webcam.setup();
+          await webcam.play();
+          window.requestAnimationFrame(loop);
+  
+          document.getElementById("webcam-container").appendChild(webcam.canvas);
+      }
+  
+      async function loop() {
+          webcam.update();
+          await predict();
+          window.requestAnimationFrame(loop);
+      }
+  
+      async function predict() {
+          const prediction = await model.predict(webcam.canvas);
+          var head = prediction[1].probability;
+          console.log(head);
+          if (head > 0.9){
+              document.getElementById("state").innerText = "머리에서 손을 때세요!!!";
+          }
+          else{
+              document.getElementById("state").innerText = "아주 잘하고 있어요 습관, 완전히 고치는 그 날까지 화이팅!";
+          };
+      }
+      init();
+  </script>
+</div>
+
+  <footer class="footer bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+          <p class="text-muted small mb-4 mb-lg-0">&copy; 30512 박규현</p>
+        </div>
+        <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+          <ul class="list-inline mb-0">
+            <li class="list-inline-item mr-3">
+              <a href="https://web.facebook.com/profile.php?id=100022859261333">
+                <i class="fab fa-facebook fa-2x fa-fw"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="static/vendor/jquery/jquery.min.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
